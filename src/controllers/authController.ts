@@ -1,10 +1,15 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt  from "jsonwebtoken";
-import User, { IUser } from '../models/User'
-import Token, { IToken } from '../models/Token'
+import { User, IUser } from '../models/User'
+import Token, { IToken } from '../models/Token';
+import { addReferralBonus } from './referralController'
+import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 
 export async function getSignup(req: Request, res: Response) {
@@ -12,11 +17,13 @@ export async function getSignup(req: Request, res: Response) {
 };
 
 export async function postSignup (req: Request, res: Response ) {
-    const { email, password } = req.body;
+    const { email, password, referralCode } = req.body;
 
     try {
+        console.log('Request Body:', req.body);
         //To confirm if the user already has an account
         const existingUser = await User.findOne({ email });
+        console.log('Existing User:', existingUser);
 
         //If user exists a new account with that credentials should not be created
         if(existingUser) {
@@ -25,20 +32,30 @@ export async function postSignup (req: Request, res: Response ) {
 
         //Hash the password of the user
         const hashedPassword = await bcrypt.hash(password, 10);
+       // To generate unique referral code
+        const userReferralCode = uuidv4();
 
         //Create a new user if user doesnt exists
-        const newUser: IUser = new User({ email, password: hashedPassword });
+        const newUser: IUser = new User({ email, password: hashedPassword, referralCode: userReferralCode, referredBy: referralCode });
+        console.log('New User:', newUser);
 
         //Save the user profile
         await newUser.save();
+
+        if(referralCode) {
+            await addReferralBonus(referralCode)
+        }
 
         //Generate token for the account
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
        return  res.status(201).json({ token });
     } catch(error) {
-        res.status(500).json({ message: 'Unable to Signup' })
+        console.error('Signup Error:', error);
+        res.status(500).json({ message: 'Unable to Signup', error })
     }
 };
+
+
 
 export async function getLogin(req: Request, res: Response) {
     res.send('Login!!');

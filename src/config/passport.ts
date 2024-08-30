@@ -1,6 +1,9 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
-import User, { IUser } from '../models/User';
+import  { User, IUser } from '../models/User';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID!,

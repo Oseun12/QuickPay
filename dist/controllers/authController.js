@@ -5,15 +5,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSignup = getSignup;
 exports.postSignup = postSignup;
+exports.getLogin = getLogin;
 exports.postLogin = postLogin;
 exports.postForgotPassword = postForgotPassword;
 exports.logout = logout;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_1 = __importDefault(require("../models/User"));
+const User_1 = require("../models/User");
 const Token_1 = __importDefault(require("../models/Token"));
 const crypto_1 = __importDefault(require("crypto"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 async function getSignup(req, res) {
     res.send('Registered!!');
 }
@@ -21,8 +24,10 @@ async function getSignup(req, res) {
 async function postSignup(req, res) {
     const { email, password } = req.body;
     try {
+        console.log('Request Body:', req.body);
         //To confirm if the user already has an account
-        const existingUser = await User_1.default.findOne({ email });
+        const existingUser = await User_1.User.findOne({ email });
+        console.log('Existing User:', existingUser);
         //If user exists a new account with that credentials should not be created
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
@@ -30,23 +35,29 @@ async function postSignup(req, res) {
         //Hash the password of the user
         const hashedPassword = await bcryptjs_1.default.hash(password, 10);
         //Create a new user if user doesnt exists
-        const newUser = new User_1.default({ email, password: hashedPassword });
+        const newUser = new User_1.User({ email, password: hashedPassword });
+        console.log('New User:', newUser);
         //Save the user profile
         await newUser.save();
         //Generate token for the account
         const token = jsonwebtoken_1.default.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(201).json({ token });
+        return res.status(201).json({ token });
     }
     catch (error) {
-        res.status(500).json({ message: 'Unable to Signup' });
+        console.error('Signup Error:', error);
+        res.status(500).json({ message: 'Unable to Signup', error });
     }
+}
+;
+async function getLogin(req, res) {
+    res.send('Login!!');
 }
 ;
 async function postLogin(req, res) {
     const { email, password } = req.body;
     try {
         //To confirm the existence of the user
-        const user = await User_1.default.findOne({ email });
+        const user = await User_1.User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
         }
@@ -57,7 +68,7 @@ async function postLogin(req, res) {
         }
         //Generate Token
         const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
+        return res.status(200).json({ token });
     }
     catch (error) {
         res.status(500).json({ message: 'Unable to Log in' });
@@ -66,7 +77,7 @@ async function postLogin(req, res) {
 async function postForgotPassword(req, res) {
     const { email } = req.body;
     try {
-        const user = await User_1.default.findOne({ email });
+        const user = await User_1.User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
         }
