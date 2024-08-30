@@ -47,8 +47,8 @@ export async function postSignup (req: Request, res: Response ) {
         }
 
         //Generate token for the account
-        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
-       return  res.status(201).json({ token });
+        // const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+       return  res.status(201).json({ newUser });
     } catch(error) {
         console.error('Signup Error:', error);
         res.status(500).json({ message: 'Unable to Signup', error })

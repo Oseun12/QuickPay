@@ -6,6 +6,8 @@ import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import transactionRoutes from './routes/transaction.routes';
+import utilityRoutes from './routes/utility.routes';
+import subscriptionRoutes from './routes/subscription.routes'
 import './config/passport';
 import bodyParser = require('body-parser');
 import session from 'express-session';
@@ -39,6 +41,8 @@ app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', dashboardRoutes);
 app.use('/api', transactionRoutes);
+app.use('/api', utilityRoutes);
+app.use('api', subscriptionRoutes);
 
 // app.use((err, req, res, next) => {
 //     console.error(err.stack);
