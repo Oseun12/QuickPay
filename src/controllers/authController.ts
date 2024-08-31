@@ -47,7 +47,6 @@ export async function postSignup (req: Request, res: Response ) {
         }
 
         //Generate token for the account
-        // const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
        return  res.status(201).json({ newUser });
     } catch(error) {
         console.error('Signup Error:', error);
@@ -121,7 +120,7 @@ export async function postForgotPassword (req: Request, res: Response) {
             from: process.env.EMAIL_USER,
             subject: 'Your New Password',
             text: `You are receiving this because you have requested that your password should be reset for your account.
-            Please click on the link below to reset the password http://localhost:3000/${token}`
+            Please click on the link below to reset the password http://localhost:5000/${token}`
         };
 
         transporter.sendMail(mailOptions, (err) => {

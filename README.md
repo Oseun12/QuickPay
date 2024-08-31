@@ -1,4 +1,4 @@
-# TV Subscription App
+# QuickPay
 
 A web application for purchasing TV subscriptions, airtime and data. Users can buy various subscription plans, and the app handles payment processing and subscription management.
 
@@ -20,6 +20,9 @@ nodemon src/app.ts
 
 ## Install Dependencies
 npm install
+
+### NOTE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+utility API's are to be provided
 
 ### Prerequisites
 

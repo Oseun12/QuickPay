@@ -53,52 +53,43 @@ export async function getAllTransactions(req: Request, res: Response) {
     }
 }
 
-export async function fundWallet(req: Request, res: Response) {
-    const user = req.user as IUser;
-    const { amount, paymentSource } = req.body;
+// This should be displayed on the UI
+// const companyBankDetails = {
+//     accountName: "Company Name",
+//     accountNumber: "1234567890",
+//     bankName: "YourBank",
+// };
 
-    if(!user) {
-        return res.status(401).json({ message: 'Unautorized user' });
-    }
-
-    let paymentMethod: 'Wallet' | 'Bank' | 'Transfer';
+export async function bankTransferWebhook(req: Request, res: Response) {
+    const { senderName, amount, transactionReference } = req.body;
 
     try {
-        if (paymentSource === 'Transfer') {
-            paymentMethod = 'Transfer';
-        } else if (paymentSource === 'Wallet') {
-            paymentMethod = 'Wallet';
-        } else if(paymentSource === 'Bank') {
-            paymentMethod = 'Bank'
-        } else {
-            return res.status(400).json({ message: 'Invalid payment Source' })
+        // Assuming senderName can be used to identify the user
+        const user = await User.findOne({ email: senderName });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        if (paymentMethod === 'Wallet' && user.balance < amount) {
-            return res.status(400).json({ message: 'Insufficent balance' });
-        }
-
-        //Deduct the amount from the wallet balance
-        if(paymentMethod == 'Wallet') {
-            user.balance -= amount;
-            await user.save();
-        }
-
-        //To set wew transaction receord
+        // Create a new transaction record
         const newTransaction = new Transaction({
             userId: user._id,
             amount: amount,
             totalAmount: amount,
             status: 'Successful',
-            paymentMethod: paymentMethod,
-            transactionNumber: uuidv4(),
-            transactionDate: Date()
+            paymentMethod: 'Bank Transfer',
+            transactionNumber: transactionReference,
+            transactionDate: new Date(),
         });
-        
+
         await newTransaction.save();
 
-        res.status(200).json({ message: 'Wallet funded successfully', balance: user.balance, transaction: newTransaction});
+        // Credit the user's wallet
+        user.balance += amount;
+        await user.save();
+
+        res.status(200).json({ message: 'Wallet funded successfully', balance: user.balance, transaction: newTransaction });
     } catch (error) {
-        res.status(500).json({ message: 'Error funding wallet' })
+        res.status(500).json({ message: 'Error processing bank transfer', error });
     }
 }

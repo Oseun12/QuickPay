@@ -7,7 +7,6 @@ import userRoutes from './routes/user.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import transactionRoutes from './routes/transaction.routes';
 import utilityRoutes from './routes/utility.routes';
-import subscriptionRoutes from './routes/subscription.routes'
 import './config/passport';
 import bodyParser = require('body-parser');
 import session from 'express-session';
@@ -17,6 +16,7 @@ dotenv.config();
 
 const app = express();
 
+//Session set up
 app.use(session({
     secret: process.env.SESSION_SECRET || 'secretsecret', 
     resave: false,
@@ -26,7 +26,6 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-// app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -36,18 +35,13 @@ mongoose.connect(process.env.MONGO_URI!)
 .then(() => console.log('Connected to Database'))
 .catch(err => console.log(err));
 
-
+//Router set up
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', dashboardRoutes);
 app.use('/api', transactionRoutes);
 app.use('/api', utilityRoutes);
-app.use('api', subscriptionRoutes);
 
-// app.use((err, req, res, next) => {
-//     console.error(err.stack);
-//     res.status(500).json({ message: 'Internal Server Error' });
-// });
-
+//Port set up
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

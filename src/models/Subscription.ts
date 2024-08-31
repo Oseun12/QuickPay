@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+// Define the Subscription Document interface
 export interface ISubscription extends Document {
     userId: Schema.Types.ObjectId;
     plan: string;
@@ -11,6 +12,7 @@ export interface ISubscription extends Document {
     transactionId?: string;
 }
 
+// Define the Subscription Schema interface
 const SubscriptionSchema: Schema = new Schema ({
     userId: {
         type: Schema.Types.ObjectId,
@@ -48,4 +50,5 @@ const SubscriptionSchema: Schema = new Schema ({
     }
 })
 
+//Create and export Subscription model
 export const Subscription = mongoose.model<ISubscription>('Subscription', SubscriptionSchema)

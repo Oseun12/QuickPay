@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+// Define the Transaction document interface
 export interface ITransaction extends Document {
     userId: string;
     network?: string;
@@ -16,6 +17,7 @@ export interface ITransaction extends Document {
     provider?: string; 
 }
 
+// Define the Transaction Schema interface
 const TransactionSchema: Schema = new Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId, 
@@ -28,7 +30,7 @@ const TransactionSchema: Schema = new Schema({
     },
     airtimeCode: {
         type: String,
-        required: true
+        required: false
     },
     amount: {
         type: Number,
@@ -41,7 +43,7 @@ const TransactionSchema: Schema = new Schema({
     status: {
         type: String,
         enum: 
-            ['Pending', 'Successfull', 'Failed'],
+            ['Pending', 'Successful', 'Failed'],
         default: 'Pending',
         required: true,
     },
@@ -78,4 +80,5 @@ const TransactionSchema: Schema = new Schema({
     }
 })
 
+// Create and export the Transaction model
 export const Transaction = mongoose.model<ITransaction>('Transaction', TransactionSchema);
